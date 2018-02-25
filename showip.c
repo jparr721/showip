@@ -8,14 +8,18 @@
 #include <netinet/in.h>
 #include <time.h>
 
+
+
 const char* print_usage() {
 	return "Usage: showip [options] hostname\noptions:\n-h Display help\n-s  Show ip and save a log of the request";
 }
 
 void store_shown_data(char* data) {
 	printf("Storing output...");
-	time_t current_time = time(NULL);
 	FILE* data_file = fopen("data.txt", "w");
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+	fprintf(data_file, "%d-%d-%d:	 %s", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, data); 
 	fclose(data_file);
 }
 
@@ -50,6 +54,10 @@ void show_ip(char* host) {
 		}
 
 		inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
+		char* long_addr = (char *) malloc(1 + strlen(ipver) + strlen(ipstr));
+		strcpy(long_addr, ipstr);
+		strcpy(long_addr, ipver);
+		store_shown_data(long_addr);
 		printf(" %s: %s\n", ipver, ipstr);
 	}
 
